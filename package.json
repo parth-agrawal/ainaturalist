@@ -6,9 +6,12 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
+    "ai": "^4.1.28",
+    "better-sqlite3": "^11.8.1",
     "elysia": "latest"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
     "bun-types": "latest"
   },
   "module": "src/index.js"
