@@ -1,17 +1,37 @@
-import Database from 'better-sqlite3'
+import { Database } from 'bun:sqlite'
+
 const db = new Database('thread.db')
 
-interface ThreadRecord {
-    phone: string;
-    thread_id: string;
+interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  [key: string]: string;
 }
 
-db.exec(`
-    CREATE TABLE IF NOT EXISTS threads (
-      phone TEXT PRIMARY KEY,
-      thread_id TEXT NOT NULL
-    )
-  `)
+interface AddMessageParams {
+  phone: string;
+  role: 'user' | 'assistant';
+  content: string;
+  [key: string]: string | 'user' | 'assistant';
+}
 
-export const getThreadStmt = db.prepare<[string], ThreadRecord>('SELECT thread_id FROM threads WHERE phone = ?')
-export const insertThreadStmt = db.prepare<[string, string], void>('INSERT INTO threads (phone, thread_id) VALUES (?, ?)')
+interface GetMessagesParams {
+  phone: string;
+}
+
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    phone TEXT NOT NULL,
+    role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
+    content TEXT NOT NULL,
+    created_at INTEGER NOT NULL DEFAULT (unixepoch())
+  )`)
+
+export const getMessagesStmt = db.prepare<Message, string>(
+  'SELECT role, content FROM messages WHERE phone = :phone ORDER BY created_at'
+)
+export const addMessageStmt = db.prepare<void, [string, 'user' | 'assistant', string]>(
+  'INSERT INTO messages (phone, role, content) VALUES (:phone, :role, :content)'
+)

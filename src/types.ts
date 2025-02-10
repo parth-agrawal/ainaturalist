@@ -5,6 +5,7 @@ export type ChatContext = Context<{ body: typeof ChatRequest.body.static }>;
 
 export const ChatRequest = {
     body: t.Object({
-        message: t.String()
+        message: t.String(),
+        phone: t.String()
     })
 }

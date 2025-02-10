@@ -42,3 +42,7 @@ package-lock.json
 **/*.bun
 
 repomix-output.txt
+
+*.db
+
+*.env
