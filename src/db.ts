@@ -1,6 +1,10 @@
 import { Database } from 'bun:sqlite'
 
-const db = new Database('thread.db')
+const DB_PATH = process.env.NODE_ENV === 'production'
+  ? '/app/data/thread.db'
+  : 'thread.db'
+
+const db = new Database(DB_PATH)
 
 interface Message {
   role: 'user' | 'assistant';
