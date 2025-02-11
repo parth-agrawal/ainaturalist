@@ -1,20 +1,12 @@
-import { IAi } from "./interfaces";
+import { IChatService } from "./interfaces";
 import { addMessageStmt, getMessagesStmt } from './db';
 
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText } from 'ai';
 
-
-
-
-
-
-export const Ai = (): IAi => {
-
+export const ChatService = (): IChatService => {
     return {
-
         respondToChat: async (message: string, phone: string) => {
-
             const previousMessages = getMessagesStmt.all(phone)
             const messages = previousMessages.map(m => ({
                 role: m.role as 'user' | 'assistant',
@@ -38,12 +30,6 @@ export const Ai = (): IAi => {
     }
 }
 
-export const ai = Ai();
+export const ai = ChatService();
 export default ai;
-
-// const getThreadsFromAnthropic = async (threadId: string,) => {
-//     return await 
-
-
-// }
 
