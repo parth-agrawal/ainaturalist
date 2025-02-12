@@ -4,31 +4,18 @@ import { getMessages, addMessage } from './db';
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText, tool } from 'ai';
 import { Computer } from '@hdr/sdk-preview';
-import { VersToolDescription } from "./prompts";
+import { INaturalistPreprompt, VersToolDescription, VersToolPreprompt } from "./prompts";
 import { z } from 'zod';
 
 const makeVersQuery = async (prompt: string) => {
-    try {
-        console.log('banana', prompt)
-        const computer = new Computer();
-        // await computer.connect({
-        //     wsUrl: 'http://localhost:8080/ws',
-        //     mcpUrl: 'http://localhost:8080/mcp'
-        // });
-        await computer.connect();
-        // console.log('apple', computer);
-        // // Execute the command
-        // const result = await computer.do(prompt);
-        // console.log(result);
+    console.log('banana', prompt)
+    const computer = new Computer();
+    await computer.connect();
+    const result = await computer.do(`${VersToolPreprompt} ${INaturalistPreprompt} ${prompt}`);
+    await computer.close();
 
-        // // Close the connection
-        await computer.close();
+    return result;
 
-        // return result;
-    } catch (error) {
-        console.error('Error in makeVersQuery:', error);
-        throw error; // Re-throw to handle at higher level
-    }
 }
 
 
