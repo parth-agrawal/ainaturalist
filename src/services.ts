@@ -1,5 +1,5 @@
 import { IChatService } from "./interfaces";
-import { addMessageStmt, getMessagesStmt } from './db';
+import { getMessages, addMessage } from './db';
 
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText, tool } from 'ai';
@@ -36,7 +36,7 @@ const makeVersQuery = async (prompt: string) => {
 export const ChatService = (): IChatService => {
     return {
         respondToChat: async (message: string, phone: string) => {
-            const previousMessages = getMessagesStmt.all(phone)
+            const previousMessages = await getMessages({ phone })
             const messages = previousMessages.map(m => ({
                 role: m.role as 'user' | 'assistant',
                 content: m.content
@@ -61,14 +61,14 @@ export const ChatService = (): IChatService => {
                 },
             })
 
-            addMessageStmt.run(phone, 'user', message)
-            addMessageStmt.run(phone, 'assistant', response.text)
+            await addMessage({ phone, role: 'user', content: message })
+            await addMessage({ phone, role: 'assistant', content: response.text })
 
             return response.text
         },
     }
 }
 
-export const ai = ChatService();
-export default ai;
+export const chatService = ChatService();
+export default chatService;
 

@@ -10,11 +10,14 @@
     "@ai-sdk/anthropic": "^1.1.6",
     "@anthropic-ai/sdk": "^0.36.3",
     "@hdr/sdk-preview": "file:../typescript_sdk-preview",
+    "@prisma/client": "^6.3.1",
     "ai": "^4.1.28",
-    "elysia": "latest"
+    "elysia": "latest",
+    "pg": "^8.13.2",
+    "prisma": "^6.3.1"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.12",
+    "@types/pg": "^8.11.11",
     "bun-types": "latest"
   },
   "module": "src/index.js"
