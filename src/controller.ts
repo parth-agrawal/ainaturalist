@@ -1,10 +1,18 @@
-import { Context } from "elysia";
+import { Request, Response } from 'express';
 import chatService from "./services";
-import { ChatContext } from "./types";
 
-export const postChat = async ({ body }: ChatContext) => {
-    const response = await chatService.respondToChat(body.message, body.phone);
-    return response;
+interface ChatRequestBody {
+    message: string;
+    phone: string;
+}
+
+export const postChat = async (req: Request<{}, {}, ChatRequestBody>, res: Response) => {
+    try {
+        const response = await chatService.respondToChat(req.body.message, req.body.phone);
+        res.json({ response });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
 }
 
 interface TwilioRequestBody {
@@ -12,13 +20,14 @@ interface TwilioRequestBody {
     From: string;
 }
 
-export const twilioWebhook = async (c: Context & { body: TwilioRequestBody }) => {
-    const { Body: message, From: phone } = c.body;
-    const response = await chatService.respondToChat(message, phone);
+export const twilioWebhook = async (req: Request<{}, {}, TwilioRequestBody>, res: Response) => {
+    try {
+        const { Body: message, From: phone } = req.body;
+        const response = await chatService.respondToChat(message, phone);
 
-
-    return new Response(
-        `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${response}</Message></Response>`,
-        { headers: { 'Content-Type': 'application/xml' } }
-    )
+        res.set('Content-Type', 'application/xml');
+        res.send(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>${response}</Message></Response>`);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
 }

@@ -1,14 +1,17 @@
-import { Elysia } from "elysia";
+import express from 'express';
 import { postChat, twilioWebhook } from "./controller";
-import { ChatRequest } from "./types";
 
+const app = express();
+const port = 3000;
 
-const app = new Elysia()
-  .get("/", () => "Hello Elysia")
-  .post('/chat', postChat, ChatRequest)
-  .post('/twilio/webhook', twilioWebhook)
-  .listen(3000);
+// Middleware to parse JSON bodies
+app.use(express.json());
 
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
-);
+// Routes
+app.get("/", (req, res) => res.send("Hello Express"));
+app.post('/chat', postChat);
+app.post('/twilio/webhook', twilioWebhook);
+
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
+});
