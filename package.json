@@ -9,6 +9,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.6",
     "@anthropic-ai/sdk": "^0.36.3",
+    "@hdr/sdk-preview": "file:../typescript_sdk-preview",
     "ai": "^4.1.28",
     "elysia": "latest"
   },
