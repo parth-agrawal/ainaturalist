@@ -10,8 +10,12 @@ import { z } from 'zod';
 const makeVersQuery = async (prompt: string) => {
     console.log('banana', prompt)
     const computer = new Computer();
-    await computer.connect();
-    const result = await computer.do(`${VersToolPreprompt} ${INaturalistPreprompt} ${prompt}`);
+    await computer.connect({
+        wsUrl: "http://localhost:8080/ws",
+        mcpUrl: 'http://localhost:8080/mcp'
+    });
+    // const result = await computer.do(`curl https://example.com/`);
+    const result = await computer.do(`${VersToolPreprompt} ${INaturalistPreprompt} Here is what the user wants you to do: ${prompt}`);
     await computer.close();
 
     return result;

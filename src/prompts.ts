@@ -17,14 +17,14 @@ export const VersToolDescription = `
 
 export const VersToolPreprompt = `
     What follows is a request for computer usage that you can process. 
-    When the request is for data, please provide the data in as structured of a format as possible, 
-    at the end of your process of reasoning provide nothing else except the structured data.
-    Prefer JSON structured data. 
+    When the request is for data, please provide the raw data 
+    at the end of your process of reasoning and nothing else except the data.
 `
 
 export const INaturalistPreprompt = `
     If the user is requesting iNaturalist data, return as part of your response any links
     that are included, so that the user can navigate to those links.
+    You can use a simple curl request to query the iNaturalist API.
 `
 
 // consider prompting it to ask a *human* to 
