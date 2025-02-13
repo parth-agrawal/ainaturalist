@@ -17,8 +17,9 @@ export const postChat = async (req: Request<{}, {}, ChatRequestBody>, res: Respo
 
 export const postRegister = async (req: Request, res: Response) => {
     try {
-        const { phone } = req.body.phone;
+        const { phone } = req.body;
         const response = await chatService.register(phone);
+        res.json({ response })
 
     }
     catch (error) {

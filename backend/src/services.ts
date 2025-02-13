@@ -12,14 +12,9 @@ const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
 const makeVersQuery = async (prompt: string) => {
     console.log('banana', prompt)
-    const computer = new Computer();
-    await computer.connect({
-        wsUrl: "http://localhost:8080/ws",
-        mcpUrl: 'http://localhost:8080/mcp'
-    });
+    const computer = await Computer.create();
     // const result = await computer.do(`curl https://example.com/`);
     const result = await computer.do(`${VersPreprompt} ${INaturalistPreprompt} Here is what the user wants you to do: ${prompt}`);
-    await computer.close();
 
     return result;
 
@@ -61,20 +56,27 @@ export const ChatService = (): IChatService => {
             return response.text
         },
         register: async (phone: string) => {
+            console.log('phone', phone)
             const phoneEntry = await getPhone(phone)
+            console.log('phoneEntry', phoneEntry)
             if (phoneEntry) {
                 return 'Phone already registered!'
             }
             else {
                 await addPhone(phone)
             }
-            await twilioClient.messages.create({
-                body: 'Welcome! You are now registered to chat with our AI assistant. Send a message to get started!',
-                to: phone,
-                from: process.env.TWILIO_PHONE_NUMBER
-            });
 
-            return 'Phone registered successfully! You should receive a text shortly.'
+            try {
+                const response = await twilioClient.messages.create({
+                    body: 'Welcome to AI Naturalist! Reply YES to get nature identification messages. Msg&data rates apply. Reply STOP anytime',
+                    to: phone,
+                    from: process.env.TWILIO_PHONE_NUMBER
+                });
+                return 'Phone registered successfully! You should receive a text shortly.';
+            } catch (error) {
+                console.error('Error sending welcome message:', error);
+                return 'Phone registered but there was an error sending the welcome message. Please try again later.';
+            }
 
         }
     }
