@@ -11,7 +11,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.6",
     "@anthropic-ai/sdk": "^0.36.3",
-    "@hdr/sdk-preview": "file:../../typescript_sdk-preview",
+    "@hdr/sdk-preview": "^0.1.0",
     "@prisma/client": "^6.3.1",
     "@types/cors": "^2.8.17",
     "ai": "^4.1.28",
