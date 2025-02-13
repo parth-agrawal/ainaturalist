@@ -15,6 +15,17 @@ export const postChat = async (req: Request<{}, {}, ChatRequestBody>, res: Respo
     }
 }
 
+export const postRegister = async (req: Request, res: Response) => {
+    try {
+        const { phone } = req.body.phone;
+        const response = await chatService.register(phone);
+
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 interface TwilioRequestBody {
     Body: string;
     From: string;

@@ -1,6 +1,6 @@
 import { expect, test, describe, beforeAll, afterAll, beforeEach } from 'bun:test';
 import { Pool } from 'pg';
-import { getMessages, addMessage } from '../src/db';
+import { getMessages, addMessage } from '../../src/db';
 
 describe('Database Operations', () => {
     let pool: Pool;

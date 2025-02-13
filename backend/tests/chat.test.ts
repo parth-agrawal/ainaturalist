@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import ai from "../src/services";
+import ai from "../../src/services";
 
 describe('AI Operations', () => {
     test('should respond to a chat message', async () => {

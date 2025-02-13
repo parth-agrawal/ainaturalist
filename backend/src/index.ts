@@ -10,6 +10,7 @@ app.use(express.json());
 // Routes
 app.get("/", (req, res) => res.send("Hello Express"));
 app.post('/chat', postChat);
+app.post('/register',)
 app.post('/twilio/webhook', twilioWebhook);
 
 app.listen(port, () => {

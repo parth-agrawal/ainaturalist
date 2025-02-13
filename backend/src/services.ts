@@ -1,11 +1,14 @@
 import { IChatService } from "./interfaces";
-import { getMessages, addMessage } from './db';
+import { getMessages, addMessage, getPhone, addPhone } from './db';
 
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateText, tool } from 'ai';
 import { Computer } from '@hdr/sdk-preview';
-import { INaturalistPreprompt, VersToolDescription, VersToolPreprompt } from "./prompts";
+import { INaturalistPreprompt, VersToolDescription, VersPreprompt } from "./prompts";
 import { z } from 'zod';
+import twilioClient from "./twilio";
+
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
 const makeVersQuery = async (prompt: string) => {
     console.log('banana', prompt)
@@ -15,7 +18,7 @@ const makeVersQuery = async (prompt: string) => {
         mcpUrl: 'http://localhost:8080/mcp'
     });
     // const result = await computer.do(`curl https://example.com/`);
-    const result = await computer.do(`${VersToolPreprompt} ${INaturalistPreprompt} Here is what the user wants you to do: ${prompt}`);
+    const result = await computer.do(`${VersPreprompt} ${INaturalistPreprompt} Here is what the user wants you to do: ${prompt}`);
     await computer.close();
 
     return result;
@@ -57,6 +60,23 @@ export const ChatService = (): IChatService => {
 
             return response.text
         },
+        register: async (phone: string) => {
+            const phoneEntry = await getPhone(phone)
+            if (phoneEntry) {
+                return 'Phone already registered!'
+            }
+            else {
+                await addPhone(phone)
+            }
+            await twilioClient.messages.create({
+                body: 'Welcome! You are now registered to chat with our AI assistant. Send a message to get started!',
+                to: phone,
+                from: process.env.TWILIO_PHONE_NUMBER
+            });
+
+            return 'Phone registered successfully! You should receive a text shortly.'
+
+        }
     }
 }
 

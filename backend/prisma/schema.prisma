@@ -14,13 +14,18 @@ datasource db {
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
+  id        String    @id @default(uuid())
   phone     String
   role      Role     @default(user)
   content   String
   createdAt DateTime @default(now()) @map("created_at")
 
   @@index([phone])
+}
+
+model Phone { 
+  id String @id @default(uuid())
+  phone String @unique
 }
 
 enum Role {
