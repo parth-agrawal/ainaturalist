@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3010';
+
 export default function SMSSignup() {
     const [phone, setphone] = useState('');
     const [submitted, setSubmitted] = useState(false);
@@ -18,7 +20,7 @@ export default function SMSSignup() {
 
         try {
             setIsLoading(true);
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
+            const response = await fetch(`${API_URL}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
