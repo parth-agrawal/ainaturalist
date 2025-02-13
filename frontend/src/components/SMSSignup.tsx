@@ -7,13 +7,34 @@ import { Input } from '@/components/ui/input';
 import Link from 'next/link';
 
 export default function SMSSignup() {
-    const [phoneNumber, setPhoneNumber] = useState('');
+    const [phone, setphone] = useState('');
     const [submitted, setSubmitted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        setSubmitted(true);
+        try {
+            setIsLoading(true);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ phone }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Registration failed');
+            }
+
+            setSubmitted(true);
+        } catch (error) {
+            console.error('Error registering:', error);
+            // Handle error state here
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -37,14 +58,14 @@ export default function SMSSignup() {
                                     type="tel"
                                     id="phone"
                                     placeholder="(555) 555-5555"
-                                    value={phoneNumber}
-                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                    value={phone}
+                                    onChange={(e) => setphone(e.target.value)}
                                     required
                                 />
                             </div>
 
-                            <Button type="submit" className="w-full">
-                                Sign up for SMS
+                            <Button type="submit" className="w-full" disabled={isLoading}>
+                                {isLoading ? 'Signing up...' : 'Sign up for SMS'}
                             </Button>
 
                             <p className="text-xs text-muted-foreground mt-4">
