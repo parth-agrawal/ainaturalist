@@ -3,7 +3,7 @@ import cors from 'cors';
 import { postChat, postRegister, twilioWebhook } from "./controller";
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3010;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
