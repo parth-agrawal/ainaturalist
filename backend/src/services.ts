@@ -60,24 +60,36 @@ export const ChatService = (): IChatService => {
             const phoneEntry = await getPhone(phone)
             console.log('phoneEntry', phoneEntry)
             if (phoneEntry) {
-                return 'Phone already registered!'
-            }
-            else {
-                await addPhone(phone)
+                return {
+                    success: false,
+                    error: {
+                        code: 400,
+                        message: 'Phone already registered.'
+                    }
+                }
             }
 
             try {
+                await addPhone(phone)
                 const response = await twilioClient.messages.create({
                     body: 'Welcome to AI Naturalist! Reply YES to get nature identification messages. Msg&data rates apply. Reply STOP anytime',
                     to: phone,
                     from: process.env.TWILIO_PHONE_NUMBER
                 });
-                return 'Phone registered successfully! You should receive a text shortly.';
+                return {
+                    success: true,
+                    message: 'Phone registered successfully. You should receive a text shortly.'
+                };
             } catch (error) {
                 console.error('Error sending welcome message:', error);
-                return 'Phone registered but there was an error sending the welcome message. Please try again later.';
+                return {
+                    success: false,
+                    error: {
+                        code: 400,
+                        message: 'Phone registered but there was an error sending the welcome message. Please try again later.'
+                    }
+                };
             }
-
         }
     }
 }
