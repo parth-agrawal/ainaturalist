@@ -10,17 +10,6 @@
 //     })
 // }
 
-interface SuccessResponse {
-    success: true;
-    message: string;
-}
-
-interface ErrorResponse {
-    success: false;
-    error: {
-        code: number;
-        message: string;
-    };
-}
-
-export type RegisterResponse = SuccessResponse | ErrorResponse;
+export type ServiceResponse =
+    | { message: string }
+    | { error: { code: number; message: string } }

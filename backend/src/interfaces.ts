@@ -1,6 +1,6 @@
-import { RegisterResponse } from "./types";
+import { ServiceResponse } from "./types";
 
 export interface IChatService {
     respondToChat(message: string, phone: string): Promise<string>;
-    register(phone: string): Promise<RegisterResponse>;
+    register(phone: string): Promise<ServiceResponse>;
 }

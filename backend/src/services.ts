@@ -21,7 +21,6 @@ const makeVersQuery = async (prompt: string) => {
 }
 
 
-
 export const ChatService = (): IChatService => {
     return {
         respondToChat: async (message: string, phone: string) => {

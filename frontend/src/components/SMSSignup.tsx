@@ -10,9 +10,11 @@ export default function SMSSignup() {
     const [phone, setphone] = useState('');
     const [submitted, setSubmitted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setError(null); // Reset error state on new submission
 
         try {
             setIsLoading(true);
@@ -24,14 +26,16 @@ export default function SMSSignup() {
                 body: JSON.stringify({ phone }),
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                throw new Error('Registration failed');
+                throw new Error(data.message || 'Registration failed');
             }
 
             setSubmitted(true);
         } catch (error) {
             console.error('Error registering:', error);
-            // Handle error state here
+            setError(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -50,6 +54,11 @@ export default function SMSSignup() {
                 <CardContent>
                     {!submitted ? (
                         <form onSubmit={handleSubmit} className="space-y-4">
+                            {error && (
+                                <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded">
+                                    {error}
+                                </div>
+                            )}
                             <div className="space-y-2">
                                 <label htmlFor="phone" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                     Phone Number
