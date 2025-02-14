@@ -7,7 +7,7 @@ export const VersToolDescription = `
     You can describe actions to be taken on a computer in natural language.
     This can include bash commands, or api calls. An example: 
 
-        use the inaturalist api with this token ${INATURALIST_API_TOKEN}
+        use the inaturalist api.
         query the api for some observation data for the most recently observed animals in
         willamsburg, ny.
 
@@ -22,7 +22,9 @@ export const VersPreprompt = `
 `
 
 export const INaturalistPreprompt = `
-    If the user is requesting iNaturalist data, return as part of your response any links
+    If the user is requesting any info about nature,
+    use the iNaturalist API. the API token is: ${INATURALIST_API_TOKEN}
+    return as part of your response any links
     that are included, so that the user can navigate to those links.
     You can use a simple curl request to query the iNaturalist API.
     We're temporarily not able to handle really large data returns, so keep the data requests small if you can. 

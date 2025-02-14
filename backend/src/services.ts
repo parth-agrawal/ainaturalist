@@ -12,11 +12,18 @@ const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
 const makeVersQuery = async (prompt: string) => {
     console.log('banana', prompt)
-    const computer = await Computer.create();
+    let computer;
+    try {
+        computer = await Computer.create();
+    } catch (error) {
+        console.error('Failed to create computer:', error);
+        throw error;
+    }
     // const result = await computer.do(`curl https://example.com/`);
     const result = await computer.do(`${VersPreprompt} ${INaturalistPreprompt} Here is what the user wants you to do: ${prompt}`);
 
     return result;
+    // return "dummy";
 
 }
 
@@ -55,9 +62,7 @@ export const ChatService = (): IChatService => {
             return response.text
         },
         register: async (phone: string) => {
-            console.log('phone', phone)
             const phoneEntry = await getPhone(phone)
-            console.log('phoneEntry', phoneEntry)
             if (phoneEntry) {
                 return {
                     success: false,
