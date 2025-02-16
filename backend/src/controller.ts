@@ -8,6 +8,7 @@ interface ChatRequestBody {
 
 export const postChat = async (req: Request<{}, {}, ChatRequestBody>, res: Response) => {
     try {
+        console.log('Received chat request');
         const response = await chatService.respondToChat(req.body.message, req.body.phone);
         res.json({ message: response });
     } catch (error) {
