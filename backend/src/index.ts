@@ -7,6 +7,7 @@ const port = process.env.PORT || 3010;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin: 'http://localhost:3000',
   methods: ['GET', 'POST', 'OPTIONS'],
