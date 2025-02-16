@@ -11,6 +11,5 @@ RUN bun install
 
 COPY . .
 RUN bunx prisma generate
-RUN bunx prisma migrate deploy
 EXPOSE $PORT
-CMD ["bun", "src/index.ts"]
+CMD bunx prisma migrate deploy && bun src/index.ts
