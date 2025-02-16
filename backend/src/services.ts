@@ -30,44 +30,50 @@ export const ChatService = (): IChatService => {
     return {
         respondToChat: async (message: string, phone: string) => {
             console.log('Responding to chat');
-            try {
 
-
-                const previousMessages = await getMessages({ phone })
-                const messages = previousMessages.map(m => ({
-                    role: m.role as 'user' | 'assistant',
-                    content: m.content || ''
-                }))
-                if (message) messages.push({ role: 'user', content: message })
-                console.log('Messages:', messages);
-
-                const response = await generateText({
-                    model: anthropic('claude-3-5-sonnet-latest'),
-                    messages: messages,
-                    tools: {
-                        vers: tool({
-                            description: VersToolDescription,
-                            parameters: z.object({
-                                prompt: z.string().describe('prompt used to take the Vers action')
-                            }),
-                            execute: async ({ prompt }) => makeVersQuery(prompt),
-                        })
-                    },
-                    maxSteps: 5,
-                    onStepFinish: step => {
-                        console.log(JSON.stringify(step, null, 2));
-                    },
-                })
-
-                await addMessage({ phone, role: 'user', content: message })
-                await addMessage({ phone, role: 'assistant', content: response.text })
-
-                return response.text
+            if (!message || !phone) {
+                throw new Error('Message and phone are required');
             }
-            catch (error) {
-                console.error('Error:', error);
+
+
+            const previousMessages = await getMessages({ phone })
+            const messages = previousMessages.map(m => ({
+                role: m.role as 'user' | 'assistant',
+                content: m.content
+            }))
+            messages.push({ role: 'user', content: message })
+            console.log('Messages:', messages);
+
+            const response = await generateText({
+                model: anthropic('claude-3-5-sonnet-latest'),
+                messages: messages,
+                tools: {
+                    vers: tool({
+                        description: VersToolDescription,
+                        parameters: z.object({
+                            prompt: z.string().describe('prompt used to take the Vers action')
+                        }),
+                        execute: async ({ prompt }) => makeVersQuery(prompt),
+                    })
+                },
+                maxSteps: 5,
+                onStepFinish: step => {
+                    console.log(JSON.stringify(step, null, 2));
+                },
+            })
+
+            if (!response.text) {
+                console.log('Claude response:', response);
+                throw new Error('Empty response from Claude');
             }
-            return 'Error';
+
+
+            await addMessage({ phone, role: 'user', content: message })
+            await addMessage({ phone, role: 'assistant', content: response.text })
+
+            return response.text
+
+
 
         },
         register: async (phone: string) => {
