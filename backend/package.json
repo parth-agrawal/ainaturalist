@@ -6,7 +6,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx tsx watch src/index.ts",
     "start": "npx tsx src/index.ts",
-    "build": "npx prisma generate && tsc"
+    "build": "npx prisma generate && tsc",
+    "docker:build": "docker build -t ainaturalist .",
+    "docker:run-db": "docker ps -q -f name=ainaturalist-db || docker run --name ainaturalist-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=ainaturalist -p 5600:5432 -d postgres:latest",
+    "docker:run": "npm run docker:run-db && docker run -p 3010:3010 -d ainaturalist"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.6",
