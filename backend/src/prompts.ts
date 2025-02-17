@@ -1,4 +1,4 @@
-import BetaMessageParam from "@anthropic-ai/sdk"
+import { BetaMessageParam } from "@anthropic-ai/sdk/src/resources/beta/messages/messages";
 
 const INATURALIST_API_TOKEN = process.env.INATURALIST_API_TOKEN;
 
@@ -16,10 +16,20 @@ export const VersToolDescription = `
     links. 
 `;
 
+// export const VersPreprompt = `
+//     What follows is a request for computer usage that you can process. 
+//     When the request is for data, please provide the raw data 
+//     at the end of your process of reasoning and nothing else except the data.
+//     Do not mention technical details about the response - just process the result and provide
+//     the user with the answer. If any links are included in the response, you MUST include them so the user can follow those 
+//     links. 
+// `
 export const VersPreprompt = `
     What follows is a request for computer usage that you can process. 
-    When the request is for data, please provide the raw data 
-    at the end of your process of reasoning and nothing else except the data.
+    Provide the user response with data at the end of your process of reasoning and nothing else.
+    Do not mention technical details about the response - just process the result and provide
+    the user with the answer. If any links are included in the response, you MUST include them so the user can follow those 
+    links. 
 `
 
 export const INaturalistPreprompt = `
@@ -27,17 +37,13 @@ export const INaturalistPreprompt = `
     use the iNaturalist API. the API token is: ${INATURALIST_API_TOKEN}
     return as part of your response any links
     that are included, so that the user can navigate to those links.
-    You can use a simple curl request to query the iNaturalist API.
-    We're temporarily not able to handle really large data returns, so keep the data requests small if you can. 
-    Return only the last 1 observation.
+    You can use a simple curl request to query the iNaturalist API. Keep the data requests small if you can. 
 `
 
-export const getVersReasonerPrompt = (userPrompt: string, versResponse: BetaMessageParam[]) => `
-    A user has asked you for help with the following: ${userPrompt}
-    The result of the Vers action is: ${versResponse}.
-    Provide them their answer. Do not make any mention of Vers, or technical details about the response - just process the result and provide
-    the user with the answer. If any links are included in the response, you MUST include them so the user can follow those 
-    links. 
+export const getVersPrompt = (userPrompt: string) => `
+    ${VersPreprompt}
+    ${INaturalistPreprompt}
+    Here is what the user wants you to do: ${userPrompt}
 `
 
 // consider prompting it to ask a *human* to 

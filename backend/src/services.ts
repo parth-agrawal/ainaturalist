@@ -2,33 +2,45 @@ import { IChatService, ITwilioService } from "./interfaces";
 import { getMessages, addMessage, getPhone, addPhone } from './db';
 
 import { anthropic } from '@ai-sdk/anthropic';
-import BetaMessageParam from "@anthropic-ai/sdk"
+import { BetaMessageParam, BetaContentBlockParam } from "@anthropic-ai/sdk/src/resources/beta/messages/messages";
 import { generateText, tool } from 'ai';
 import { Computer } from '@hdr/sdk-preview';
-import { INaturalistPreprompt, VersToolDescription, VersPreprompt, getVersReasonerPrompt } from "./prompts";
+import { INaturalistPreprompt, VersToolDescription, VersPreprompt, getVersPrompt } from "./prompts";
 import { z } from 'zod';
 import twilioClient from "./twilio";
 
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
-const reasonOverVersResponse = async (prompt: string, versResult: BetaMessageParam[]) => {
-    const reasonedResponse = await generateText({
-        system: getVersReasonerPrompt(prompt, versResult),
-        model: anthropic('claude-3-5-sonnet-latest'),
-        messages: [{ role: 'user', content: versResult.toLocaleString() }],
-    })
-    return reasonedResponse;
-}
+// const reasonOverVersResponse = async (prompt: string, versResult: BetaMessageParam[]) => {
+
+//     console.log('kiwi VersResult:', JSON.stringify(versResult, null, 2));
+//     console.log('kiwi VersResult to String:', versResult.toLocaleString());
+//     const reasonedResponse = await generateText({
+//         prompt: getVersReasonerPrompt(prompt, versResult),
+//         model: anthropic('claude-3-5-sonnet-latest'),
+//     })
+//     return reasonedResponse;
+// }
 
 const makeVersQuery = async ({ prompt, phone }: { prompt: string, phone: string }) => {
 
+    console.log('Vers prompt:', getVersPrompt(prompt));
     const computer = await Computer.create();
-    const versResult: BetaMessageParam[] = await computer.do(`${VersPreprompt} ${INaturalistPreprompt} Here is what the user wants you to do: ${prompt}`);
-    console.log('apple Vers result:', versResult);
-    const reasonedResponse = await reasonOverVersResponse(prompt, versResult.slice(versResult.length - 4, versResult.length - 1));
+    const versMessageArray: BetaMessageParam[] = await computer.do(getVersPrompt(prompt));
 
-    await addMessage({ phone, role: 'user', content: reasonedResponse.text })
-    await twilioService.send(reasonedResponse.text, phone);
+    const versResult = versMessageArray[versMessageArray.length - 1].content[0]
+
+    console.log('the vers result:', versResult);
+    if (typeof versResult === 'string') {
+        await addMessage({ phone, role: 'user', content: versResult })
+        await twilioService.send(versResult, phone);
+    }
+    else if (versResult.type === 'text') {
+        await addMessage({ phone, role: 'user', content: versResult.text })
+        await twilioService.send(versResult.text, phone);
+    } else {
+        console.error('Vers result is not a text block:', versResult);
+    }
 }
 
 
@@ -67,9 +79,6 @@ export const ChatService = (): IChatService => {
                     })
                 },
                 onStepFinish: step => {
-                    if (step.toolCalls.length > 0) {
-                        console.log('Tool call detected');
-                    }
                     console.log(JSON.stringify(step, null, 2));
                 },
             })
