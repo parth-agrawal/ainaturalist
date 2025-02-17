@@ -1,3 +1,4 @@
+import BetaMessageParam from "@anthropic-ai/sdk"
 
 const INATURALIST_API_TOKEN = process.env.INATURALIST_API_TOKEN;
 
@@ -29,6 +30,14 @@ export const INaturalistPreprompt = `
     You can use a simple curl request to query the iNaturalist API.
     We're temporarily not able to handle really large data returns, so keep the data requests small if you can. 
     Return only the last 1 observation.
+`
+
+export const getVersReasonerPrompt = (userPrompt: string, versResponse: BetaMessageParam[]) => `
+    Vers is a tool that allows you to use a computer to perform any arbitrary action.
+    The user asked you for help with the following: ${userPrompt}
+    The result of the Vers action is: ${versResponse}.
+    Provide them their answer. If any links are included in the response, please include them so the user can follow those 
+    links. 
 `
 
 // consider prompting it to ask a *human* to 

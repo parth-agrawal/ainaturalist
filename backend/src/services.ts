@@ -1,28 +1,33 @@
-import { IChatService } from "./interfaces";
+import { IChatService, ITwilioService } from "./interfaces";
 import { getMessages, addMessage, getPhone, addPhone } from './db';
 
 import { anthropic } from '@ai-sdk/anthropic';
+import BetaMessageParam from "@anthropic-ai/sdk"
 import { generateText, tool } from 'ai';
 import { Computer } from '@hdr/sdk-preview';
-import { INaturalistPreprompt, VersToolDescription, VersPreprompt } from "./prompts";
+import { INaturalistPreprompt, VersToolDescription, VersPreprompt, getVersReasonerPrompt } from "./prompts";
 import { z } from 'zod';
 import twilioClient from "./twilio";
 
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
 
-const makeVersQuery = async (prompt: string) => {
-    // let computer;
-    // try {
-    //     computer = await Computer.create();
-    // } catch (error) {
-    //     console.error('Failed to create computer:', error);
-    //     throw error;
-    // }
-    const computer = await Computer.create();
-    const result = await computer.do(`${VersPreprompt} ${INaturalistPreprompt} Here is what the user wants you to do: ${prompt}`);
-    // const result = await computer.do('Curl google.com');
+const reasonOverVersResponse = async (prompt: string, versResult: BetaMessageParam[]) => {
+    const reasonedResponse = await generateText({
+        system: getVersReasonerPrompt(prompt, versResult),
+        model: anthropic('claude-3-5-sonnet-latest'),
+        messages: [{ role: 'user', content: versResult.toLocaleString() }],
+    })
+    return reasonedResponse;
+}
 
-    return result;
+const makeVersQuery = async ({ prompt, phone }: { prompt: string, phone: string }) => {
+
+    const computer = await Computer.create();
+    const versResult: BetaMessageParam[] = await computer.do(`${VersPreprompt} ${INaturalistPreprompt} Here is what the user wants you to do: ${prompt}`);
+    const reasonedResponse = await reasonOverVersResponse(prompt, versResult);
+
+    await addMessage({ phone, role: 'user', content: reasonedResponse.text })
+    await twilioService.send(reasonedResponse.text, phone);
 }
 
 
@@ -53,25 +58,29 @@ export const ChatService = (): IChatService => {
                         parameters: z.object({
                             prompt: z.string().describe('prompt used to take the Vers action')
                         }),
-                        execute: async ({ prompt }) => makeVersQuery(prompt),
+                        execute: async ({ prompt }) => makeVersQuery({ prompt, phone }),
                     })
                 },
-                maxSteps: 5,
                 onStepFinish: step => {
+                    if (step.toolCalls.length > 0) {
+                        console.log('Tool call detected');
+                    }
                     console.log(JSON.stringify(step, null, 2));
                 },
             })
 
             if (!response.text) {
-                console.log('Claude response:', response);
-                throw new Error('Empty response from Claude');
+                throw new Error('Empty text in response from Claude:' + response);
             }
 
+            const finalResponse = response.toolCalls?.length > 0
+                ? "Got it, checking on that for you..."
+                : response.text;
 
             await addMessage({ phone, role: 'user', content: message })
-            await addMessage({ phone, role: 'assistant', content: response.text })
+            await addMessage({ phone, role: 'assistant', content: finalResponse })
 
-            return response.text
+            return finalResponse
 
 
 
@@ -113,6 +122,23 @@ export const ChatService = (): IChatService => {
     }
 }
 
+export const TwilioService = (): ITwilioService => {
+    return {
+        send: async (body: string, to: string) => {
+            try {
+                await twilioClient.messages.create({
+                    body: body,
+                    to: to,
+                    from: process.env.TWILIO_PHONE_NUMBER
+                });
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
+        }
+    }
+
+}
+
 export const chatService = ChatService();
-export default chatService;
+export const twilioService = TwilioService();
 

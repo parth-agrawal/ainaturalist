@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import chatService from "./services";
-
+import { chatService } from "./services";
+import twilioClient from './twilio';
 interface ChatRequestBody {
     message: string;
     phone: string;
@@ -45,14 +45,7 @@ interface TwilioRequestBody {
 }
 
 export const twilioWebhook = async (req: Request<{}, {}, TwilioRequestBody>, res: Response) => {
-    try {
-        const { Body: message, From: phone } = req.body;
-        const response = await chatService.respondToChat(message, phone);
+    const { Body: message, From: phone } = req.body;
+    const response = await chatService.respondToChat(message, phone);
 
-        res.set('Content-Type', 'application/xml');
-        res.send(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>${response}</Message></Response>`);
-    } catch (error) {
-        res.set('Content-Type', 'application/xml');
-        res.send(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>Sorry, there was an error processing your request.</Message></Response>`);
-    }
 }
