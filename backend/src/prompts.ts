@@ -33,10 +33,10 @@ export const INaturalistPreprompt = `
 `
 
 export const getVersReasonerPrompt = (userPrompt: string, versResponse: BetaMessageParam[]) => `
-    Vers is a tool that allows you to use a computer to perform any arbitrary action.
-    The user asked you for help with the following: ${userPrompt}
+    A user has asked you for help with the following: ${userPrompt}
     The result of the Vers action is: ${versResponse}.
-    Provide them their answer. If any links are included in the response, please include them so the user can follow those 
+    Provide them their answer. Do not make any mention of Vers, or technical details about the response - just process the result and provide
+    the user with the answer. If any links are included in the response, you MUST include them so the user can follow those 
     links. 
 `
 

@@ -24,7 +24,8 @@ const makeVersQuery = async ({ prompt, phone }: { prompt: string, phone: string 
 
     const computer = await Computer.create();
     const versResult: BetaMessageParam[] = await computer.do(`${VersPreprompt} ${INaturalistPreprompt} Here is what the user wants you to do: ${prompt}`);
-    const reasonedResponse = await reasonOverVersResponse(prompt, versResult);
+    console.log('apple Vers result:', versResult);
+    const reasonedResponse = await reasonOverVersResponse(prompt, versResult.slice(versResult.length - 4, versResult.length - 1));
 
     await addMessage({ phone, role: 'user', content: reasonedResponse.text })
     await twilioService.send(reasonedResponse.text, phone);
@@ -58,7 +59,11 @@ export const ChatService = (): IChatService => {
                         parameters: z.object({
                             prompt: z.string().describe('prompt used to take the Vers action')
                         }),
-                        execute: async ({ prompt }) => makeVersQuery({ prompt, phone }),
+                        execute: async ({ prompt }) => {
+                            makeVersQuery({ prompt, phone })
+                            return 'Got it, checking on that for you...'
+
+                        },
                     })
                 },
                 onStepFinish: step => {
@@ -73,14 +78,10 @@ export const ChatService = (): IChatService => {
                 throw new Error('Empty text in response from Claude:' + response);
             }
 
-            const finalResponse = response.toolCalls?.length > 0
-                ? "Got it, checking on that for you..."
-                : response.text;
-
             await addMessage({ phone, role: 'user', content: message })
-            await addMessage({ phone, role: 'assistant', content: finalResponse })
+            await addMessage({ phone, role: 'assistant', content: response.text })
 
-            return finalResponse
+            return response.text
 
 
 
