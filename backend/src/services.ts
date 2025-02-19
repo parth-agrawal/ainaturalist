@@ -86,6 +86,7 @@ export const ChatService = (): IChatService => {
             if (!response.text) {
                 throw new Error('Empty text in response from Claude:' + response);
             }
+            console.log('the response is', response.text)
 
             await addMessage({ phone, role: 'user', content: message })
             await addMessage({ phone, role: 'assistant', content: response.text })

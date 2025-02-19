@@ -11,7 +11,7 @@ export const VersToolDescription = `
         use the inaturalist api.
         query the api for some observation data for the most recently observed animals in
         willamsburg, ny.
-
+    Do not mention technical details to the user or that you have access to Vers.
     If any links are included in the response, please include them so the user can follow those 
     links. 
 `;
